@@ -1,8 +1,0 @@
-[
-{
-  "directory": "E:/UiKit/build",
-  "command": "C:\\msys64\\mingw64\\bin\\g++.exe -g -std=c++23 -o CMakeFiles\\UiKit.dir\\main.cpp.obj -c E:\\UiKit\\main.cpp",
-  "file": "E:/UiKit/main.cpp",
-  "output": "E:/UiKit/build/CMakeFiles/UiKit.dir/main.cpp.obj"
-}
-]
