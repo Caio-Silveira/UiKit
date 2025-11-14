@@ -19,7 +19,7 @@
 			"*.ipp": "${capture}_*.ipp, ${capture}_*.h, ${capture}_*.hpp, ${capture}_*.cpp, ${capture}_*.c, ${capture}.cpp, ${capture}.c, ${capture}.h, ${capture}.hpp",
 			"CMakeLists.txt": "*.cmake, CMakeSettings.json",
 			"Makefile": "*.mk, Makefile.*",
-			".clang-format": ".clang-tidy, compile_commands.json"
+			".clang-format": ".clang-tidy, compile_commands.json",
 		},
 		"C_Cpp.intelliSenseEngine": "default",
 		"C_Cpp.autocomplete": "default",
