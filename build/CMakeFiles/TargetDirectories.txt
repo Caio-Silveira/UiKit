@@ -1,0 +1,3 @@
+E:/UiKit/build/CMakeFiles/UiKit.dir
+E:/UiKit/build/CMakeFiles/edit_cache.dir
+E:/UiKit/build/CMakeFiles/rebuild_cache.dir

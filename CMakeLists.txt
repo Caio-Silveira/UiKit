@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(UiKit CXX)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(UIKIT_SOURCES
+
+)
+
+set(UIKIT_HEADERS
+
+)
+
+add_executable(UiKit 
+    main.cpp
+    ${UIKIT_SOURCES}
+    ${UIKIT_HEADERS}
+)
+
+set_target_properties(UiKit PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+)

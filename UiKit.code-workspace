@@ -1,0 +1,191 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"UIKIT"
+		],
+
+		"explorer.fileNesting.enabled": true,
+		"explorer.fileNesting.expand": false,
+		"explorer.fileNesting.patterns": {
+			"*.cpp": "${capture}_*.cpp, ${capture}_*.h, ${capture}_*.hpp, ${capture}_*.ipp, ${capture}.h, ${capture}.hpp, ${capture}.ipp",
+			"*.c": "${capture}_*.c, ${capture}_*.h, ${capture}.h",
+			"*.h": "${capture}_*.h, ${capture}_*.hpp, ${capture}_*.cpp, ${capture}_*.c, ${capture}.cpp, ${capture}.c, ${capture}.hpp, ${capture}.ipp",
+			"*.hpp": "${capture}_*.hpp, ${capture}_*.h, ${capture}_*.cpp, ${capture}_*.c, ${capture}.cpp, ${capture}.c, ${capture}.h, ${capture}.ipp",
+			"*.ipp": "${capture}_*.ipp, ${capture}_*.h, ${capture}_*.hpp, ${capture}_*.cpp, ${capture}_*.c, ${capture}.cpp, ${capture}.c, ${capture}.h, ${capture}.hpp",
+			"CMakeLists.txt": "*.cmake, CMakeSettings.json",
+			"Makefile": "*.mk, Makefile.*",
+			".clang-format": ".clang-tidy, compile_commands.json"
+		},
+		"C_Cpp.intelliSenseEngine": "default",
+		"C_Cpp.autocomplete": "default",
+		"C_Cpp.errorSquiggles": "enabled",
+
+		// CMake Tools Build Configs
+		"cmake.buildDirectory": "${workspaceFolder}/build",
+		"cmake.configureOnOpen": true,
+		"cmake.configureArgs": [
+			"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+		],
+		"cmake.defaultBuildType": "Release",
+		"cmake.buildTypes": ["Debug", "Release"],
+
+		"cmake.generator": "Ninja",
+		"cmake.preferredGenerators": ["Ninja", "MinGW Makefiles"],
+
+		"editor.tokenColorCustomizations": {
+			"textMateRules": [
+				{
+					"scope": [
+						"keyword.control.cpp",
+						"keyword.operator.cpp"
+					],
+					"settings": {
+						"foreground": "#569CD6",
+						"fontStyle": "bold"
+					}
+				},
+				{
+					"scope": [
+						"variable.cpp",
+						"entity.name.variable.cpp"
+					],
+					"settings": {
+						"foreground": "#9CDCFE"
+					}
+				},
+				{
+					"scope": [
+						"entity.name.function.cpp",
+						"support.function.cpp"
+					],
+					"settings": {
+						"foreground": "#DCDCAA"
+					}
+				},
+				{
+					"scope": [
+						"entity.name.type.cpp",
+						"storage.type.cpp",
+						"support.type.cpp"
+					],
+					"settings": {
+						"foreground": "#4EC9B0"
+					}
+				},
+				{
+					"scope": [
+						"string.quoted.double.cpp",
+						"string.quoted.single.cpp"
+					],
+					"settings": {
+						"foreground": "#CE9178"
+					}
+				},
+				{
+					"scope": [
+						"constant.numeric.cpp",
+						"constant.language.cpp"
+					],
+					"settings": {
+						"foreground": "#B5CEA8"
+					}
+				},
+				{
+					"scope": [
+						"comment.cpp",
+						"punctuation.definition.comment.cpp"
+					],
+					"settings": {
+						"foreground": "#6A9955",
+						"fontStyle": "italic"
+					}
+				}
+			]
+		},
+
+		"files.associations": {
+			"array": "cpp",
+			"atomic": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"cstddef": "cpp",
+			"cstdint": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp",
+			"ctime": "cpp",
+			"cwchar": "cpp",
+			"initializer_list": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"xtr1common": "cpp",
+			"xutility": "cpp",
+			"bit": "cpp",
+			"cctype": "cpp",
+			"charconv": "cpp",
+			"clocale": "cpp",
+			"cmath": "cpp",
+			"cstdarg": "cpp",
+			"cwctype": "cpp",
+			"deque": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"exception": "cpp",
+			"algorithm": "cpp",
+			"functional": "cpp",
+			"iterator": "cpp",
+			"memory": "cpp",
+			"memory_resource": "cpp",
+			"numeric": "cpp",
+			"optional": "cpp",
+			"random": "cpp",
+			"string_view": "cpp",
+			"system_error": "cpp",
+			"tuple": "cpp",
+			"format": "cpp",
+			"iosfwd": "cpp",
+			"iostream": "cpp",
+			"istream": "cpp",
+			"limits": "cpp",
+			"new": "cpp",
+			"numbers": "cpp",
+			"ostream": "cpp",
+			"queue": "cpp",
+			"span": "cpp",
+			"stdexcept": "cpp",
+			"streambuf": "cpp",
+			"typeinfo": "cpp",
+			"variant": "cpp",
+			"ios": "cpp",
+			"locale": "cpp",
+			"xfacet": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"xmemory": "cpp",
+			"xstring": "cpp"
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools-themes",
+			"ms-vscode.cpptools-extension-pack",
+			"ms-vscode.cpptools",
+			"ms-vscode.cmake-tools",
+			"usernamehw.errorlens",
+			"aaron-bond.better-comments",
+			"streetsidesoftware.code-spell-checker"
+		]
+	}
+}
