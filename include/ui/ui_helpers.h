@@ -98,6 +98,63 @@ namespace UiKit {
 
     #pragma endregion
 
+#pragma region Draw
+    struct CornerArcPositions {
+        Vec2 topLeft;
+        Vec2 topRight;
+        Vec2 bottomRight;
+        Vec2 bottomLeft;
+    };
+
+    struct LineState {
+        Color color;
+        float thickness;
+    };
+
+    struct ArcState {
+        Color color;
+        float thickness;
+        int segments;
+    };
+
+    inline Vec2 GetCirclePoint(Vec2 center, float radius, float angle) {
+        return center + Vec2{Cos(angle), Sin(angle)} * radius;
+    }
+
+    inline int CalculateCircleSegmentCount(float radius) {
+        int segments = static_cast<int>(Sqrt(radius) * 4.0f);
+        return Clamp(segments, 12, 128);
+    }
+
+    inline Vec2 GetPerpendicularNormalized(Vec2 direction) {
+        return Vec2{-direction.y, direction.x}.Normalized();
+    }
+
+    inline Vec4 ClampCornerRadius(Rect rect, Vec4 radius) {
+        float maxRadius = Min(rect.Width(), rect.Height()) * 0.5f;
+        return {
+            Min(radius.x, maxRadius),
+            Min(radius.y, maxRadius),
+            Min(radius.z, maxRadius),
+            Min(radius.w, maxRadius)
+        };
+    }
+
+    inline bool IsCornerRadiusZero(Vec4 radius) {
+        return radius.x <= 0.0f && radius.y <= 0.0f && 
+            radius.z <= 0.0f && radius.w <= 0.0f;
+    }
+
+    inline CornerArcPositions GetCornerArcCenters(Rect rect, Vec4 rounding) {
+        return {
+            {rect.Left() + rounding.x, rect.Top() + rounding.y},
+            {rect.Right() - rounding.y, rect.Top() + rounding.y},
+            {rect.Right() - rounding.z, rect.Bottom() - rounding.z},
+            {rect.Left() + rounding.w, rect.Bottom() - rounding.w}
+        };
+    }
+    #pragma endregion
+
     inline unsigned int FloatToU8(float value) {
         return static_cast<unsigned int>(value * 255.0f);
     }
