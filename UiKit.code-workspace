@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"cSpell.words": [
-			"UIKIT"
+			"UIKIT",
+			"ABGR"
 		],
 
 		"explorer.fileNesting.enabled": true,
