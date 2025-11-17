@@ -43,10 +43,6 @@ namespace UiKit {
         float Vertical() const { return y + w; }
     };
 
-    using Padding = Vec4;
-    using BorderThickness = Vec4;
-    using CornerRadius = Vec4;
-
     inline unsigned int FloatToU8(float value);
 
     struct Color {
