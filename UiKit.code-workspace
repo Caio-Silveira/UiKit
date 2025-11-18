@@ -16,7 +16,8 @@
 			"lpfn",
 			"lpsz",
 			"OVERLAPPEDWINDOW",
-			"IDXGI"
+			"IDXGI",
+			"MINIMIZEBOX"
 		],
 
 		"explorer.fileNesting.enabled": true,
