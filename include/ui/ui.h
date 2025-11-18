@@ -41,6 +41,12 @@ namespace UiKit {
         D3D12_INDEX_BUFFER_VIEW indexBufferView;
         UINT vertexBufferSize;
         UINT indexBufferSize;
+
+        Color clearColor;
+
+        ID3D12Resource* msaaRenderTarget;
+        ID3D12DescriptorHeap* msaaRtvHeap;
+        UINT msaaSampleCount;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);
@@ -49,4 +55,6 @@ namespace UiKit {
     void ProcessEvents(AppWindow* app);
     bool BeginFrame(AppWindow* app);
     void EndFrame(AppWindow* app);
+
+    void SetClearColor(AppWindow* app, Color color);
 }
