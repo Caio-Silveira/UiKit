@@ -119,6 +119,18 @@ namespace UiKit {
         
         app->commandList->Close();
 
+        if (FAILED(app->device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&app->fence)))) {
+            return false;
+        }
+        
+        app->fenceValues[0] = 1;
+        app->fenceValues[1] = 1;
+
+        app->fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        if (app->fenceEvent == nullptr) {
+            return false;
+        }
+
         return true;
     }
 
@@ -166,9 +178,26 @@ namespace UiKit {
         return app;
     }
 
+    void WaitForGPU(AppWindow* app) {
+        const UINT64 fenceValue = app->fenceValues[app->frameIndex];
+        app->commandQueue->Signal(app->fence, fenceValue);
+        
+        if (app->fence->GetCompletedValue() < fenceValue) {
+            app->fence->SetEventOnCompletion(fenceValue, app->fenceEvent);
+            WaitForSingleObject(app->fenceEvent, INFINITE);
+        }
+        
+        app->fenceValues[app->frameIndex]++;
+    }
+
     void DestroyAppWindow(AppWindow* app) {
         if (!app) return;
         
+        WaitForGPU(app);
+    
+        if (app->fenceEvent) CloseHandle(app->fenceEvent);
+        if (app->fence) app->fence->Release();
+
         if (app->commandList) app->commandList->Release();
         for (UINT i = 0; i < 2; i++) {
             if (app->commandAllocators[i]) app->commandAllocators[i]->Release();

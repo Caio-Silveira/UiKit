@@ -27,6 +27,10 @@ namespace UiKit {
 
         ID3D12CommandAllocator* commandAllocators[2];
         ID3D12GraphicsCommandList* commandList;  
+
+        ID3D12Fence* fence;
+        UINT64 fenceValues[2];
+        HANDLE fenceEvent; 
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);
