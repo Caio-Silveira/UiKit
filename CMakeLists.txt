@@ -22,7 +22,7 @@ set(UIKIT_HEADERS
     include/UI/ui_shaders.h
 )
 
-add_executable(UiKit 
+add_executable(UiKit WIN32
     main.cpp
     ${UIKIT_SOURCES}
     ${UIKIT_HEADERS}
