@@ -6,10 +6,13 @@ using namespace UiKit;
 
 int main() {
     AppWindow* app = CreateAppWindow("UiKit Test", 1280, 720);
+    
     if (!app) {
         return -1;
     }
     
+    SetClearColor(app, Color{0.047f, 0.043f, 0.05f, 1.0f});
+
     InputState input;
     float deltaTime = 0.016f;
     
