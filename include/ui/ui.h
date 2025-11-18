@@ -31,6 +31,9 @@ namespace UiKit {
         ID3D12Fence* fence;
         UINT64 fenceValues[2];
         HANDLE fenceEvent; 
+
+        ID3D12RootSignature* rootSignature;
+        ID3D12PipelineState* pipelineState;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);

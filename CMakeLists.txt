@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(UIKIT_SOURCES
     src/UI/ui.cpp
     src/UI/ui_context.cpp
+    src/UI/ui_shaders.cpp 
 )
 
 set(UIKIT_HEADERS
@@ -18,6 +19,7 @@ set(UIKIT_HEADERS
     include/UI/ui_draw.h
     include/UI/ui_helpers.h
     include/UI/ui_widgets.h
+    include/UI/ui_shaders.h
 )
 
 add_executable(UiKit 

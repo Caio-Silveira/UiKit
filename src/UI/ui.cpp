@@ -1,6 +1,7 @@
 #include "../include/ui/ui.h"
-#include <windows.h>
+#include "../include/ui/ui_shaders.h"
 #include "../include/ui/ui_context.h"
+#include <windows.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
 
@@ -131,6 +132,10 @@ namespace UiKit {
             return false;
         }
 
+        if (!CreatePipelineState(app)) {
+            return false;
+        }
+        
         return true;
     }
 
