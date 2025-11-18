@@ -53,6 +53,51 @@ namespace UiKit {
             return false;
         }
 
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+        swapChainDesc.BufferCount = 2;
+        swapChainDesc.Width = app->width;
+        swapChainDesc.Height = app->height;
+        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        swapChainDesc.SampleDesc.Count = 1;
+        
+        IDXGISwapChain1* swapChain1;
+        if (FAILED(app->factory->CreateSwapChainForHwnd(
+            app->commandQueue,
+            app->hwnd,
+            &swapChainDesc,
+            nullptr,
+            nullptr,
+            &swapChain1
+        ))) {
+            return false;
+        }
+        
+        swapChain1->QueryInterface(IID_PPV_ARGS(&app->swapChain));
+        swapChain1->Release();
+        
+        app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
+
+        D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+        rtvHeapDesc.NumDescriptors = 2;
+        rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        
+        if (FAILED(app->device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&app->rtvHeap)))) {
+            return false;
+        }
+        
+        app->rtvDescriptorSize = app->device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = app->rtvHeap->GetCPUDescriptorHandleForHeapStart();
+        
+        for (UINT i = 0; i < 2; i++) {
+            app->swapChain->GetBuffer(i, IID_PPV_ARGS(&app->renderTargets[i]));
+            app->device->CreateRenderTargetView(app->renderTargets[i], nullptr, rtvHandle);
+            rtvHandle.ptr += app->rtvDescriptorSize;
+        }
+
         return true;
     }
 
@@ -103,6 +148,12 @@ namespace UiKit {
     void DestroyAppWindow(AppWindow* app) {
         if (!app) return;
         
+        for (UINT i = 0; i < 2; i++) {
+            if (app->renderTargets[i]) app->renderTargets[i]->Release();
+        }
+        if (app->rtvHeap) app->rtvHeap->Release();
+        if (app->swapChain) app->swapChain->Release();
+
         if (app->commandQueue) app->commandQueue->Release();
         if (app->device) app->device->Release();
         if (app->factory) app->factory->Release();

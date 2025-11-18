@@ -18,6 +18,12 @@ namespace UiKit {
         ID3D12Device* device;
         IDXGIFactory4* factory;
         ID3D12CommandQueue* commandQueue;
+
+        IDXGISwapChain3* swapChain;
+        ID3D12Resource* renderTargets[2];       // * double buffering
+        ID3D12DescriptorHeap* rtvHeap;
+        UINT frameIndex;
+        UINT rtvDescriptorSize;   
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);
