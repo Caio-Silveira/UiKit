@@ -25,8 +25,8 @@ namespace UiKit {
 
     using Window = Context;
 
-    Window* CreateWindow();
-    void DestroyWindow(Window* window);
+    Window* CreateUIWindow();
+    void DestroyUIWindow(Window* window);
     Window* GetCurrentWindow();
     void SetCurrentWindow(Window* window);
 

@@ -31,7 +31,7 @@ namespace UiKit {
         return time;
     }
 
-    Window* CreateWindow() {
+    Window* CreateUIWindow() {
         Window* window = new Window();
         if (!currentWindow) {
             SetCurrentWindow(window);
@@ -39,7 +39,7 @@ namespace UiKit {
         return window;
     }
 
-    void DestroyWindow(Window* window) {
+    void DestroyUIWindow(Window* window) {
         if (window) {
             delete window;
         }
