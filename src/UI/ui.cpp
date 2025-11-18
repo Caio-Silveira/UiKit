@@ -11,11 +11,6 @@
 
 namespace UiKit {
 
-    void DebugLog(const char* msg) {
-        OutputDebugStringA(msg);
-        printf("%s\n", msg);
-    }
-
     LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         AppWindow* app = reinterpret_cast<AppWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         
@@ -151,8 +146,6 @@ namespace UiKit {
     }
 
     AppWindow* CreateAppWindow(const char* title, int width, int height) {
-        DebugLog("CreateAppWindow: Start");
-
         AppWindow* app = new AppWindow{};
         app->width = width;
         app->height = height;
@@ -167,12 +160,12 @@ namespace UiKit {
         RegisterClassA(&wc);
         
         RECT rect = {0, 0, width, height};
-        AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+        AdjustWindowRect(&rect,  WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
         
         app->hwnd = CreateWindowA(
             "UiKitWindow",
             title,
-            WS_OVERLAPPEDWINDOW,
+            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
             CW_USEDEFAULT, CW_USEDEFAULT,
             rect.right - rect.left,
             rect.bottom - rect.top,
@@ -188,14 +181,11 @@ namespace UiKit {
         
         app->context = CreateUIWindow();
         
-        DebugLog("CreateAppWindow: Window created");
-
         if (!InitD3D12(app)) {
             DestroyAppWindow(app);
             return nullptr;
         }
 
-        DebugLog("CreateAppWindow: Success");
         return app;
     }
 
@@ -345,14 +335,11 @@ namespace UiKit {
     }
 
     bool BeginFrame(AppWindow* app) {
-        DebugLog("BeginFrame: Start");
-
         app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
         
         app->commandAllocators[app->frameIndex]->Reset();
         app->commandList->Reset(app->commandAllocators[app->frameIndex], app->pipelineState);
         
-        DebugLog("BeginFrame: End");
         return true;
     }
 
@@ -399,22 +386,19 @@ namespace UiKit {
         
         ID3D12CommandList* commandLists[] = {app->commandList};
         app->commandQueue->ExecuteCommandLists(1, commandLists);
-        
-        // ← CORRIGIDO: Signal e Present
+
         const UINT64 currentFenceValue = app->fenceValues[app->frameIndex];
         app->commandQueue->Signal(app->fence, currentFenceValue);
         
         app->swapChain->Present(1, 0);
-        
-        // ← CORRIGIDO: Esperar o próximo frame estar livre
+
         app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
         
         if (app->fence->GetCompletedValue() < app->fenceValues[app->frameIndex]) {
             app->fence->SetEventOnCompletion(app->fenceValues[app->frameIndex], app->fenceEvent);
             WaitForSingleObject(app->fenceEvent, INFINITE);
         }
-        
-        // ← CORRIGIDO: Incrementar DEPOIS de usar
+
         app->fenceValues[app->frameIndex] = currentFenceValue + 1;
     }
 }
