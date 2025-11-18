@@ -7,17 +7,34 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(UIKIT_SOURCES
-
+    src/UI/ui.cpp
+    src/UI/ui_context.cpp
 )
 
 set(UIKIT_HEADERS
-
+    include/UI/ui.h
+    include/UI/ui_context.h
+    include/UI/ui_core.h
+    include/UI/ui_draw.h
+    include/UI/ui_helpers.h
+    include/UI/ui_widgets.h
 )
 
 add_executable(UiKit 
     main.cpp
     ${UIKIT_SOURCES}
     ${UIKIT_HEADERS}
+)
+
+target_include_directories(UiKit PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(UiKit PRIVATE
+    d3d12
+    dxgi
+    d3dcompiler
+    dxguid
 )
 
 set_target_properties(UiKit PROPERTIES
