@@ -4,8 +4,7 @@ namespace UiKit {
 
     static Window* currentWindow = nullptr;
 
-    Context::Context() 
-        : displaySize{}, deltaTime(0.0f), time(0.0f) {
+    Context::Context() : deltaTime(0.0f), time(0.0f) {
     }
 
     Context::~Context() {
@@ -20,19 +19,8 @@ namespace UiKit {
         drawList.Clear();
     }
 
-    void Context::Render() {
-    }
-
     DrawList* Context::GetDrawList() {
         return &drawList;
-    }
-
-    void Context::SetDisplaySize(Vec2 size) {
-        displaySize = size;
-    }
-
-    Vec2 Context::GetDisplaySize() const {
-        return displaySize;
     }
 
     float Context::GetDeltaTime() const {
