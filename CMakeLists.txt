@@ -37,6 +37,7 @@ target_link_libraries(UiKit PRIVATE
     dxgi
     d3dcompiler
     dxguid
+    dwmapi
 )
 
 set_target_properties(UiKit PROPERTIES
