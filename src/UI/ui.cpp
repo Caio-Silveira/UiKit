@@ -98,6 +98,27 @@ namespace UiKit {
             rtvHandle.ptr += app->rtvDescriptorSize;
         }
 
+        for (UINT i = 0; i < 2; i++) {
+            if (FAILED(app->device->CreateCommandAllocator(
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                IID_PPV_ARGS(&app->commandAllocators[i])
+            ))) {
+                return false;
+            }
+        }
+
+        if (FAILED(app->device->CreateCommandList(
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            app->commandAllocators[app->frameIndex],
+            nullptr,
+            IID_PPV_ARGS(&app->commandList)
+        ))) {
+            return false;
+        }
+        
+        app->commandList->Close();
+
         return true;
     }
 
@@ -148,6 +169,11 @@ namespace UiKit {
     void DestroyAppWindow(AppWindow* app) {
         if (!app) return;
         
+        if (app->commandList) app->commandList->Release();
+        for (UINT i = 0; i < 2; i++) {
+            if (app->commandAllocators[i]) app->commandAllocators[i]->Release();
+        }
+
         for (UINT i = 0; i < 2; i++) {
             if (app->renderTargets[i]) app->renderTargets[i]->Release();
         }

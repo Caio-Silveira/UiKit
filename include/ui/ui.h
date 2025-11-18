@@ -24,6 +24,9 @@ namespace UiKit {
         ID3D12DescriptorHeap* rtvHeap;
         UINT frameIndex;
         UINT rtvDescriptorSize;   
+
+        ID3D12CommandAllocator* commandAllocators[2];
+        ID3D12GraphicsCommandList* commandList;  
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);
