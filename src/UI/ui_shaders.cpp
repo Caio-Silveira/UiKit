@@ -7,6 +7,10 @@
 
 namespace {
     const char* vertexShaderSource = R"(
+        cbuffer ScreenData : register(b0) {
+            float2 screenSize;
+        };
+        
         struct VSInput {
             float2 position : POSITION;
             float2 uv : TEXCOORD;
@@ -21,7 +25,12 @@ namespace {
         
         PSInput main(VSInput input) {
             PSInput output;
-            output.position = float4(input.position, 0.0f, 1.0f);
+            
+            float2 ndc;
+            ndc.x = (input.position.x / screenSize.x) * 2.0f - 1.0f;
+            ndc.y = 1.0f - (input.position.y / screenSize.y) * 2.0f;
+            
+            output.position = float4(ndc, 0.0f, 1.0f);
             output.uv = input.uv;
             output.color = input.color;
             return output;
@@ -44,7 +53,16 @@ namespace {
 namespace UiKit {
 
     bool CreatePipelineState(AppWindow* app) {
+        D3D12_ROOT_PARAMETER rootParam = {};
+        rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+        rootParam.Constants.ShaderRegister = 0;
+        rootParam.Constants.RegisterSpace = 0;
+        rootParam.Constants.Num32BitValues = 2;
+        rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+        
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+        rootSignatureDesc.NumParameters = 1;
+        rootSignatureDesc.pParameters = &rootParam;
         rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
         
         ID3DBlob* signature;

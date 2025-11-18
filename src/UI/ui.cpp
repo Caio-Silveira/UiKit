@@ -4,11 +4,17 @@
 #include <windows.h>
 #include <dxgi1_6.h>
 #include <d3d12.h>
+#include <stdio.h>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
 namespace UiKit {
+
+    void DebugLog(const char* msg) {
+        OutputDebugStringA(msg);
+        printf("%s\n", msg);
+    }
 
     LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         AppWindow* app = reinterpret_cast<AppWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -145,6 +151,8 @@ namespace UiKit {
     }
 
     AppWindow* CreateAppWindow(const char* title, int width, int height) {
+        DebugLog("CreateAppWindow: Start");
+
         AppWindow* app = new AppWindow{};
         app->width = width;
         app->height = height;
@@ -180,11 +188,14 @@ namespace UiKit {
         
         app->context = CreateUIWindow();
         
+        DebugLog("CreateAppWindow: Window created");
+
         if (!InitD3D12(app)) {
             DestroyAppWindow(app);
             return nullptr;
         }
 
+        DebugLog("CreateAppWindow: Success");
         return app;
     }
 
@@ -334,15 +345,18 @@ namespace UiKit {
     }
 
     bool BeginFrame(AppWindow* app) {
+        DebugLog("BeginFrame: Start");
+
         app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
         
         app->commandAllocators[app->frameIndex]->Reset();
         app->commandList->Reset(app->commandAllocators[app->frameIndex], app->pipelineState);
         
+        DebugLog("BeginFrame: End");
         return true;
     }
 
-    void EndFrame(AppWindow* app) {
+        void EndFrame(AppWindow* app) {
         UpdateBuffers(app);
         
         D3D12_RESOURCE_BARRIER barrier = {};
@@ -365,6 +379,9 @@ namespace UiKit {
         app->commandList->RSSetScissorRects(1, &scissor);
         
         app->commandList->SetGraphicsRootSignature(app->rootSignature);
+        float screenSize[2] = {(float)app->width, (float)app->height};
+        app->commandList->SetGraphicsRoot32BitConstants(0, 2, screenSize, 0);
+
         app->commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         app->commandList->IASetVertexBuffers(0, 1, &app->vertexBufferView);
         app->commandList->IASetIndexBuffer(&app->indexBufferView);
@@ -383,16 +400,21 @@ namespace UiKit {
         ID3D12CommandList* commandLists[] = {app->commandList};
         app->commandQueue->ExecuteCommandLists(1, commandLists);
         
+        // ← CORRIGIDO: Signal e Present
+        const UINT64 currentFenceValue = app->fenceValues[app->frameIndex];
+        app->commandQueue->Signal(app->fence, currentFenceValue);
+        
         app->swapChain->Present(1, 0);
         
-        const UINT64 fenceValue = app->fenceValues[app->frameIndex];
-        app->commandQueue->Signal(app->fence, fenceValue);
-        app->fenceValues[app->frameIndex]++;
+        // ← CORRIGIDO: Esperar o próximo frame estar livre
+        app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
         
-        UINT nextFrameIndex = app->swapChain->GetCurrentBackBufferIndex();
-        if (app->fence->GetCompletedValue() < app->fenceValues[nextFrameIndex]) {
-            app->fence->SetEventOnCompletion(app->fenceValues[nextFrameIndex], app->fenceEvent);
+        if (app->fence->GetCompletedValue() < app->fenceValues[app->frameIndex]) {
+            app->fence->SetEventOnCompletion(app->fenceValues[app->frameIndex], app->fenceEvent);
             WaitForSingleObject(app->fenceEvent, INFINITE);
         }
+        
+        // ← CORRIGIDO: Incrementar DEPOIS de usar
+        app->fenceValues[app->frameIndex] = currentFenceValue + 1;
     }
 }
