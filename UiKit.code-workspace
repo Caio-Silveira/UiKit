@@ -10,7 +10,12 @@
 			"ABGR",
 			"dxgi",
 			"d3dcompiler",
-			"dxguid"
+			"dxguid",
+			"GWLP",
+			"WNDCLASSA",
+			"lpfn",
+			"lpsz",
+			"OVERLAPPEDWINDOW",
 		],
 
 		"explorer.fileNesting.enabled": true,
