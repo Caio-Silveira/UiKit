@@ -226,11 +226,14 @@ namespace UiKit {
         }
         
         void EnsureCmd() {
-            if (IsChanged()) CreateCmd();
+            if (commands.empty() || IsStateChanged()) {
+                CreateCmd();
+            }
+            
             commands.back().indexCount += 3;
         }
         
-        bool IsChanged() {
+        bool IsStateChanged() {
             if (commands.empty()) return true;
             
             DrawCommand& last = commands.back();
@@ -242,8 +245,15 @@ namespace UiKit {
         void CreateCmd() {
             DrawCommand cmd;
             cmd.indexCount = 0;
-            cmd.indexOffset = static_cast<unsigned int>(indices.size());
-            cmd.vertexOffset = static_cast<unsigned int>(vertices.size());
+            
+            if (commands.empty()) {
+                cmd.indexOffset = 0;
+            } else {
+                DrawCommand& last = commands.back();
+                cmd.indexOffset = last.indexOffset + last.indexCount;
+            }
+            
+            cmd.vertexOffset = 0;
             cmd.clipRect = clipRect;
             cmd.textureId = textureId;
             commands.push_back(cmd);
