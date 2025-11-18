@@ -3,6 +3,8 @@
 #include "ui_core.h"
 #include "ui_context.h"
 #include <windows.h>
+#include <d3d12.h>
+#include <dxgi1_6.h>
 
 namespace UiKit {
 
@@ -13,6 +15,8 @@ namespace UiKit {
         bool running;
         
         Window* context;
+        ID3D12Device* device;
+        IDXGIFactory4* factory;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);

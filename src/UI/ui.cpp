@@ -1,6 +1,11 @@
 #include "../include/ui/ui.h"
 #include <windows.h>
 #include "../include/ui/ui_context.h"
+#include <dxgi1_6.h>
+#include <d3d12.h>
+
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
 
 namespace UiKit {
 
@@ -18,6 +23,29 @@ namespace UiKit {
         }
         
         return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+
+    bool InitD3D12(AppWindow* app) {
+        UINT dxgiFactoryFlags = 0;
+        
+        #ifdef _DEBUG
+        ID3D12Debug* debugController;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+            debugController->EnableDebugLayer();
+            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+            debugController->Release();
+        }
+        #endif
+        
+        if (FAILED(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&app->factory)))) {
+            return false;
+        }
+        
+        if (FAILED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&app->device)))) {
+            return false;
+        }
+        
+        return true;
     }
 
     AppWindow* CreateAppWindow(const char* title, int width, int height) {
@@ -56,16 +84,24 @@ namespace UiKit {
         
         app->context = CreateUIWindow();
         
+        if (!InitD3D12(app)) {
+            DestroyAppWindow(app);
+            return nullptr;
+        }
+
         return app;
     }
 
     void DestroyAppWindow(AppWindow* app) {
         if (!app) return;
         
+        if (app->device) app->device->Release();
+        if (app->factory) app->factory->Release();
+        
         DestroyUIWindow(app->context);
         
         if (app->hwnd) {
-            DestroyWindow(app->hwnd);
+            ::DestroyWindow(app->hwnd);
         }
         
         delete app;
