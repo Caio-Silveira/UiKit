@@ -17,7 +17,11 @@
 			"lpsz",
 			"OVERLAPPEDWINDOW",
 			"IDXGI",
-			"MINIMIZEBOX"
+			"MINIMIZEBOX",
+			"dwmapi",
+			"DWMWCP_DONOTROUND",
+			"DWMWA",
+			"msaa"
 		],
 
 		"explorer.fileNesting.enabled": true,
