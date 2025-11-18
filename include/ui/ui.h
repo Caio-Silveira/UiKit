@@ -6,18 +6,18 @@
 
 namespace UiKit {
 
-struct AppWindow {
-    HWND hwnd;
-    int width;
-    int height;
-    bool running;
-    
-    Window* context;
-};
+    struct AppWindow {
+        HWND hwnd;
+        int width;
+        int height;
+        bool running;
+        
+        Window* context;
+    };
 
-AppWindow* CreateAppWindow(const char* title, int width, int height);
-void DestroyAppWindow(AppWindow* app);
-bool IsRunning(AppWindow* app);
-void ProcessEvents(AppWindow* app);
+    AppWindow* CreateAppWindow(const char* title, int width, int height);
+    void DestroyAppWindow(AppWindow* app);
+    bool IsRunning(AppWindow* app);
+    void ProcessEvents(AppWindow* app);
 
 }
