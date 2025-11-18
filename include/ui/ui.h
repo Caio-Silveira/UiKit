@@ -34,11 +34,19 @@ namespace UiKit {
 
         ID3D12RootSignature* rootSignature;
         ID3D12PipelineState* pipelineState;
+
+        ID3D12Resource* vertexBuffer;
+        ID3D12Resource* indexBuffer;
+        D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+        D3D12_INDEX_BUFFER_VIEW indexBufferView;
+        UINT vertexBufferSize;
+        UINT indexBufferSize;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);
     void DestroyAppWindow(AppWindow* app);
     bool IsRunning(AppWindow* app);
     void ProcessEvents(AppWindow* app);
-
+    bool BeginFrame(AppWindow* app);
+    void EndFrame(AppWindow* app);
 }

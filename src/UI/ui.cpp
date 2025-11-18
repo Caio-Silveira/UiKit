@@ -135,7 +135,12 @@ namespace UiKit {
         if (!CreatePipelineState(app)) {
             return false;
         }
-        
+
+        app->vertexBuffer = nullptr;
+        app->indexBuffer = nullptr;
+        app->vertexBufferSize = 0;
+        app->indexBufferSize = 0;
+
         return true;
     }
 
@@ -183,6 +188,89 @@ namespace UiKit {
         return app;
     }
 
+    void UpdateBuffers(AppWindow* app) {
+        DrawList* drawList = app->context->GetDrawList();
+        
+        UINT requiredVertexSize = static_cast<UINT>(drawList->vertices.size() * sizeof(DrawVertex));
+        UINT requiredIndexSize = static_cast<UINT>(drawList->indices.size() * sizeof(unsigned int));
+        
+        if (app->vertexBuffer == nullptr || app->vertexBufferSize < requiredVertexSize) {
+            if (app->vertexBuffer) {
+                app->vertexBuffer->Release();
+            }
+            
+            app->vertexBufferSize = requiredVertexSize + 5000 * sizeof(DrawVertex);
+            
+            D3D12_HEAP_PROPERTIES heapProps = {};
+            heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+            
+            D3D12_RESOURCE_DESC resourceDesc = {};
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+            resourceDesc.Width = app->vertexBufferSize;
+            resourceDesc.Height = 1;
+            resourceDesc.DepthOrArraySize = 1;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+            
+            app->device->CreateCommittedResource(
+                &heapProps,
+                D3D12_HEAP_FLAG_NONE,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&app->vertexBuffer)
+            );
+        }
+        
+        if (app->indexBuffer == nullptr || app->indexBufferSize < requiredIndexSize) {
+            if (app->indexBuffer) {
+                app->indexBuffer->Release();
+            }
+            
+            app->indexBufferSize = requiredIndexSize + 10000 * sizeof(unsigned int);
+            
+            D3D12_HEAP_PROPERTIES heapProps = {};
+            heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+            
+            D3D12_RESOURCE_DESC resourceDesc = {};
+            resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+            resourceDesc.Width = app->indexBufferSize;
+            resourceDesc.Height = 1;
+            resourceDesc.DepthOrArraySize = 1;
+            resourceDesc.MipLevels = 1;
+            resourceDesc.SampleDesc.Count = 1;
+            resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+            
+            app->device->CreateCommittedResource(
+                &heapProps,
+                D3D12_HEAP_FLAG_NONE,
+                &resourceDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                nullptr,
+                IID_PPV_ARGS(&app->indexBuffer)
+            );
+        }
+        
+        void* vertexData;
+        app->vertexBuffer->Map(0, nullptr, &vertexData);
+        memcpy(vertexData, drawList->vertices.data(), requiredVertexSize);
+        app->vertexBuffer->Unmap(0, nullptr);
+        
+        void* indexData;
+        app->indexBuffer->Map(0, nullptr, &indexData);
+        memcpy(indexData, drawList->indices.data(), requiredIndexSize);
+        app->indexBuffer->Unmap(0, nullptr);
+        
+        app->vertexBufferView.BufferLocation = app->vertexBuffer->GetGPUVirtualAddress();
+        app->vertexBufferView.SizeInBytes = requiredVertexSize;
+        app->vertexBufferView.StrideInBytes = sizeof(DrawVertex);
+        
+        app->indexBufferView.BufferLocation = app->indexBuffer->GetGPUVirtualAddress();
+        app->indexBufferView.SizeInBytes = requiredIndexSize;
+        app->indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+    }
+
     void WaitForGPU(AppWindow* app) {
         const UINT64 fenceValue = app->fenceValues[app->frameIndex];
         app->commandQueue->Signal(app->fence, fenceValue);
@@ -199,7 +287,10 @@ namespace UiKit {
         if (!app) return;
         
         WaitForGPU(app);
-    
+
+        if (app->vertexBuffer) app->vertexBuffer->Release();
+        if (app->indexBuffer) app->indexBuffer->Release();
+
         if (app->fenceEvent) CloseHandle(app->fenceEvent);
         if (app->fence) app->fence->Release();
 
@@ -239,6 +330,69 @@ namespace UiKit {
             }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+    }
+
+    bool BeginFrame(AppWindow* app) {
+        app->frameIndex = app->swapChain->GetCurrentBackBufferIndex();
+        
+        app->commandAllocators[app->frameIndex]->Reset();
+        app->commandList->Reset(app->commandAllocators[app->frameIndex], app->pipelineState);
+        
+        return true;
+    }
+
+    void EndFrame(AppWindow* app) {
+        UpdateBuffers(app);
+        
+        D3D12_RESOURCE_BARRIER barrier = {};
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Transition.pResource = app->renderTargets[app->frameIndex];
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        app->commandList->ResourceBarrier(1, &barrier);
+        
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = app->rtvHeap->GetCPUDescriptorHandleForHeapStart();
+        rtvHandle.ptr += app->frameIndex * app->rtvDescriptorSize;
+        
+        const float clearColor[] = {0.1f, 0.1f, 0.1f, 1.0f};
+        app->commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+        app->commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+        
+        D3D12_VIEWPORT viewport = {0.0f, 0.0f, (float)app->width, (float)app->height, 0.0f, 1.0f};
+        D3D12_RECT scissor = {0, 0, (LONG)app->width, (LONG)app->height};
+        app->commandList->RSSetViewports(1, &viewport);
+        app->commandList->RSSetScissorRects(1, &scissor);
+        
+        app->commandList->SetGraphicsRootSignature(app->rootSignature);
+        app->commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        app->commandList->IASetVertexBuffers(0, 1, &app->vertexBufferView);
+        app->commandList->IASetIndexBuffer(&app->indexBufferView);
+        
+        DrawList* drawList = app->context->GetDrawList();
+        for (auto& cmd : drawList->commands) {
+            app->commandList->DrawIndexedInstanced(cmd.indexCount, 1, cmd.indexOffset, cmd.vertexOffset, 0);
+        }
+        
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+        app->commandList->ResourceBarrier(1, &barrier);
+        
+        app->commandList->Close();
+        
+        ID3D12CommandList* commandLists[] = {app->commandList};
+        app->commandQueue->ExecuteCommandLists(1, commandLists);
+        
+        app->swapChain->Present(1, 0);
+        
+        const UINT64 fenceValue = app->fenceValues[app->frameIndex];
+        app->commandQueue->Signal(app->fence, fenceValue);
+        app->fenceValues[app->frameIndex]++;
+        
+        UINT nextFrameIndex = app->swapChain->GetCurrentBackBufferIndex();
+        if (app->fence->GetCompletedValue() < app->fenceValues[nextFrameIndex]) {
+            app->fence->SetEventOnCompletion(app->fenceValues[nextFrameIndex], app->fenceEvent);
+            WaitForSingleObject(app->fenceEvent, INFINITE);
         }
     }
 }
