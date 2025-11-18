@@ -3,6 +3,7 @@
 #include "ui_core.h"
 #include "ui_draw.h"
 #include "ui_context.h"
+#include <cstdint>
 #include <cstring>
 
 namespace UiKit {
