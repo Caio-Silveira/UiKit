@@ -17,6 +17,7 @@ namespace UiKit {
         Window* context;
         ID3D12Device* device;
         IDXGIFactory4* factory;
+        ID3D12CommandQueue* commandQueue;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);

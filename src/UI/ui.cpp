@@ -45,6 +45,14 @@ namespace UiKit {
             return false;
         }
         
+        D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+        queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+        
+        if (FAILED(app->device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&app->commandQueue)))) {
+            return false;
+        }
+
         return true;
     }
 
@@ -95,6 +103,7 @@ namespace UiKit {
     void DestroyAppWindow(AppWindow* app) {
         if (!app) return;
         
+        if (app->commandQueue) app->commandQueue->Release();
         if (app->device) app->device->Release();
         if (app->factory) app->factory->Release();
         
