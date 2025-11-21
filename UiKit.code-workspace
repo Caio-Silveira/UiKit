@@ -21,7 +21,9 @@
 			"dwmapi",
 			"DWMWCP_DONOTROUND",
 			"DWMWA",
-			"msaa"
+			"msaa",
+			"verdana",
+			"stbtt"
 		],
 
 		"explorer.fileNesting.enabled": true,
