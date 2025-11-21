@@ -233,6 +233,8 @@ namespace UiKit {
             return nullptr;
         }
 
+        app->context->GetDrawList()->SetDevice(app->device);
+        
         app->clearColor = Color{0.1f, 0.1f, 0.1f, 1.0f};
 
         return app;
