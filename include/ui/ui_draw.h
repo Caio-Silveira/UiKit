@@ -2,7 +2,9 @@
 
 #include "ui_core.h"
 #include "ui_helpers.h"
+#include "ui_font.h"
 #include <vector>
+#include <d3d12.h>
 
 namespace UiKit {
 
@@ -37,6 +39,7 @@ namespace UiKit {
         void SetClipRect(Rect rect) { clipRect = rect; }
         void ResetClipRect() { clipRect = {}; }
         void SetTextureId(void* id) { textureId = id; }
+        void SetDevice(ID3D12Device* d3dDevice) { device = d3dDevice; }
         
         void AddLine(Vec2 start, Vec2 end, Color color, float thickness = 1.0f) {
             if (thickness <= 0.0f) return;
@@ -60,6 +63,21 @@ namespace UiKit {
             PushVert({center, {0.5f, 0.5f}});
             AddCircleVert(center, radius, segments);
             Vert2Mid(centerIdx);
+        }
+
+        void Draw2(const Vec2* points, int count, Color color, float thickness = 1.0f, bool rounded = false) {
+            if (count < 2) return;
+            
+            for (int i = 0; i < count - 1; ++i) {
+                AddLine(points[i], points[i + 1], color, thickness);
+            }
+            
+            if (rounded && count > 2) {
+                float radius = thickness * 0.5f;
+                for (int i = 1; i < count - 1; ++i) {
+                    DrawFill0(points[i], radius, color, 8);
+                }
+            }
         }
         
         void Draw3(Vec2 p1, Vec2 p2, Vec2 p3, Color color, float thickness = 1.0f) {
@@ -102,32 +120,87 @@ namespace UiKit {
             Vert2Mid(centerIdx);
         }
         
+        template<int N>
+        void DrawString(const char* text, Vec2 position, Color color, const unsigned char (&fontData)[N], float fontSize = 18.0f) {
+            if (!text || !device) return;
+
+            static BitmapFont cachedFont;
+            static const unsigned char* lastFontData = nullptr;
+            static float lastFontSize = 0.0f;
+
+            if (fontData != lastFontData || fontSize != lastFontSize) {
+                cachedFont.LoadFromTTF(fontData, N, fontSize * 2.0f, device);
+                lastFontData = fontData;
+                lastFontSize = fontSize;
+            }
+
+            float x = position.x;
+            float y = position.y;
+            float displayScale = fontSize / cachedFont.fontSize;
+
+            while (*text) {
+                unsigned char c = (unsigned char)*text;
+                
+                if (c == '\n') {
+                    x = position.x;
+                    y += fontSize;
+                    text++;
+                    continue;
+                }
+
+                if (c >= 32 && c < 128) {
+                    stbtt_aligned_quad q;
+                    float tempX = x / displayScale;
+                    float tempY = y / displayScale;
+                    
+                    stbtt_GetBakedQuad(cachedFont.charData, cachedFont.atlasWidth, cachedFont.atlasHeight, 
+                        c - 32, &tempX, &tempY, &q, 1);
+
+                    int u0 = (int)(q.s0 * cachedFont.atlasWidth);
+                    int v0 = (int)(q.t0 * cachedFont.atlasHeight);
+                    int u1 = (int)(q.s1 * cachedFont.atlasWidth);
+                    int v1 = (int)(q.t1 * cachedFont.atlasHeight);
+
+                    int charW = u1 - u0;
+                    int charH = v1 - v0;
+
+                    for (int py = 0; py < charH; py++) {
+                        for (int px = 0; px < charW; px++) {
+                            int atlasX = u0 + px;
+                            int atlasY = v0 + py;
+                            
+                            unsigned char alpha = cachedFont.GetPixelAlpha(atlasX, atlasY);
+                            
+                            if (alpha > 32) {
+                                float opacity = alpha / 255.0f;
+                                Color blendedColor = {
+                                    color.r * opacity,
+                                    color.g * opacity,
+                                    color.b * opacity,
+                                    color.a * opacity
+                                };
+                                
+                                float screenX = q.x0 * displayScale + px * displayScale;
+                                float screenY = q.y0 * displayScale + py * displayScale;
+                                
+                                DrawFill4({screenX, screenY, displayScale, displayScale}, blendedColor);
+                            }
+                        }
+                    }
+                    
+                    x = tempX * displayScale;
+                }
+
+                text++;
+            }
+        }
+
         void DrawImg(Rect rect, void* textureId, Color tint = Color{1, 1, 1, 1}) {
             SetTextureId(textureId);
             DrawFill4(rect, tint);
             SetTextureId(nullptr);
         }
 
-    private:
-        Rect clipRect;
-        void* textureId = nullptr;
-        unsigned int currentColor = 0xFFFFFFFF;
-        
-        unsigned int MarkCenterVertex(Color color) {
-            currentColor = color.ToABGR();
-            return static_cast<unsigned int>(vertices.size());
-        }
-        
-        void PushVert(DrawVertex vertex) {
-            vertex.color = currentColor;
-            vertices.push_back(vertex);
-        }
-        
-        void PushIdx(unsigned int index) {
-            indices.push_back(index);
-            if (indices.size() % 3 == 0) EnsureCmd();
-        }
-        
         void AddVert3(const Vec2* pos, const Vec2* uvs, Color color) {
             unsigned int baseIdx = static_cast<unsigned int>(vertices.size());
             currentColor = color.ToABGR();
@@ -151,6 +224,27 @@ namespace UiKit {
             PushIdx(baseIdx);
             PushIdx(baseIdx + 2);
             PushIdx(baseIdx + 3);
+        }
+
+    private:
+        Rect clipRect;
+        void* textureId = nullptr;
+        unsigned int currentColor = 0xFFFFFFFF;
+        ID3D12Device* device = nullptr;
+        
+        unsigned int MarkCenterVertex(Color color) {
+            currentColor = color.ToABGR();
+            return static_cast<unsigned int>(vertices.size());
+        }
+        
+        void PushVert(DrawVertex vertex) {
+            vertex.color = currentColor;
+            vertices.push_back(vertex);
+        }
+        
+        void PushIdx(unsigned int index) {
+            indices.push_back(index);
+            if (indices.size() % 3 == 0) EnsureCmd();
         }
         
         void AddLineLoop(const Vec2* pts, int count, LineState state) {
