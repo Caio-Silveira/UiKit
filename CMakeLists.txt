@@ -10,6 +10,7 @@ set(UIKIT_SOURCES
     src/UI/ui.cpp
     src/UI/ui_context.cpp
     src/UI/ui_shaders.cpp 
+    src/UI/stb_impl.cpp
 )
 
 set(UIKIT_HEADERS
@@ -20,6 +21,9 @@ set(UIKIT_HEADERS
     include/UI/ui_helpers.h
     include/UI/ui_widgets.h
     include/UI/ui_shaders.h
+    include/UI/stb_truetype.h
+    include/UI/ui_font.h
+    include/UI/verdana.h
 )
 
 add_executable(UiKit WIN32
