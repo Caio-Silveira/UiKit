@@ -43,10 +43,6 @@ namespace UiKit {
         UINT indexBufferSize;
 
         Color clearColor;
-
-        ID3D12Resource* msaaRenderTarget;
-        ID3D12DescriptorHeap* msaaRtvHeap;
-        UINT msaaSampleCount;
     };
 
     AppWindow* CreateAppWindow(const char* title, int width, int height);

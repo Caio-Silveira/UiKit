@@ -38,7 +38,6 @@ int main() {
 
         DrawList* draw = window->GetDrawList();
 
-        // --- desenha suas formas ---
         draw->DrawFill4({100, 100, 200, 100}, {0.2f, 0.3f, 0.8f, 1.0f}, Vec4{8.0f});
         draw->DrawFill0({400, 300}, 50.0f, {0.8f, 0.2f, 0.3f, 1.0f});
         draw->Draw4({600, 100, 200, 100}, {1.0f, 1.0f, 0.0f, 1.0f}, 3.0f, Vec4{4.0f});

@@ -102,28 +102,6 @@ namespace UiKit {
             rtvHandle.ptr += app->rtvDescriptorSize;
         }
 
-        app->msaaSampleCount = 4;
-
-        D3D12_DESCRIPTOR_HEAP_DESC msaaRtvHeapDesc = {};
-        msaaRtvHeapDesc.NumDescriptors = 1;
-        msaaRtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        msaaRtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-        if (FAILED(app->device->CreateDescriptorHeap(&msaaRtvHeapDesc, IID_PPV_ARGS(&app->msaaRtvHeap)))) {
-            return false;
-        }
-
-        D3D12_RESOURCE_DESC msaaDesc = {};
-        msaaDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        msaaDesc.Width = app->width;
-        msaaDesc.Height = app->height;
-        msaaDesc.DepthOrArraySize = 1;
-        msaaDesc.MipLevels = 1;
-        msaaDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        msaaDesc.SampleDesc.Count = app->msaaSampleCount;
-        msaaDesc.SampleDesc.Quality = 0;
-        msaaDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
         D3D12_CLEAR_VALUE clearValue = {};
         clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
         clearValue.Color[0] = 0.0f;
@@ -133,19 +111,6 @@ namespace UiKit {
 
         D3D12_HEAP_PROPERTIES heapProps = {};
         heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-        if (FAILED(app->device->CreateCommittedResource(
-            &heapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &msaaDesc,
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            &clearValue,
-            IID_PPV_ARGS(&app->msaaRenderTarget)
-        ))) {
-            return false;
-        }
-
-        app->device->CreateRenderTargetView(app->msaaRenderTarget, nullptr, app->msaaRtvHeap->GetCPUDescriptorHandleForHeapStart());
 
         for (UINT i = 0; i < 2; i++) {
             if (FAILED(app->device->CreateCommandAllocator(
@@ -394,21 +359,23 @@ namespace UiKit {
         return true;
     }
 
-    void EndFrame(AppWindow* app) {
+        void EndFrame(AppWindow* app) {
         UpdateBuffers(app);
 
         D3D12_RESOURCE_BARRIER barrier = {};
         barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Transition.pResource = app->msaaRenderTarget;
-        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
+        barrier.Transition.pResource = app->renderTargets[app->frameIndex];
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         app->commandList->ResourceBarrier(1, &barrier);
 
-        D3D12_CPU_DESCRIPTOR_HANDLE msaaRtvHandle = app->msaaRtvHeap->GetCPUDescriptorHandleForHeapStart();
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = app->rtvHeap->GetCPUDescriptorHandleForHeapStart();
+        rtvHandle.ptr += app->frameIndex * app->rtvDescriptorSize;
         
         const float clearColor[] = {app->clearColor.r, app->clearColor.g, app->clearColor.b, app->clearColor.a};
-        app->commandList->ClearRenderTargetView(msaaRtvHandle, clearColor, 0, nullptr);
-        app->commandList->OMSetRenderTargets(1, &msaaRtvHandle, FALSE, nullptr);
+        app->commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+        app->commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
         
         D3D12_VIEWPORT viewport = {0.0f, 0.0f, (float)app->width, (float)app->height, 0.0f, 1.0f};
         D3D12_RECT scissor = {0, 0, (LONG)app->width, (LONG)app->height};
@@ -428,31 +395,8 @@ namespace UiKit {
             app->commandList->DrawIndexedInstanced(cmd.indexCount, 1, cmd.indexOffset, cmd.vertexOffset, 0);
         }
 
-        barrier.Transition.pResource = app->msaaRenderTarget;
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
-        app->commandList->ResourceBarrier(1, &barrier);
-        
-        D3D12_RESOURCE_BARRIER barrierSwap = {};
-        barrierSwap.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrierSwap.Transition.pResource = app->renderTargets[app->frameIndex];
-        barrierSwap.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-        barrierSwap.Transition.StateAfter = D3D12_RESOURCE_STATE_RESOLVE_DEST;
-        app->commandList->ResourceBarrier(1, &barrierSwap);
-        
-        app->commandList->ResolveSubresource(
-            app->renderTargets[app->frameIndex], 0,
-            app->msaaRenderTarget, 0,
-            DXGI_FORMAT_R8G8B8A8_UNORM
-        );
-        
-        barrierSwap.Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_DEST;
-        barrierSwap.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-        app->commandList->ResourceBarrier(1, &barrierSwap);
-        
-        barrier.Transition.pResource = app->msaaRenderTarget;
-        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RESOLVE_SOURCE;
-        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
         app->commandList->ResourceBarrier(1, &barrier);
         
         app->commandList->Close();

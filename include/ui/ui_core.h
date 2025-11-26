@@ -30,7 +30,6 @@ namespace UiKit {
         }
     };
 
-    // * Four-sided properties: padding, borders, corners
     struct Vec4 {
         float x, y, z, w;
         
