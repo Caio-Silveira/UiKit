@@ -72,3 +72,6 @@ desktop.ini
 *.temp
 *.bak
 *.cache
+
+prompts/
+prompts/*

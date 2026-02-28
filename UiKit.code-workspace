@@ -6,24 +6,15 @@
 	],
 	"settings": {
 		"cSpell.words": [
-			"UIKIT",
-			"ABGR",
-			"dxgi",
-			"d3dcompiler",
-			"dxguid",
-			"GWLP",
-			"WNDCLASSA",
-			"lpfn",
-			"lpsz",
-			"OVERLAPPEDWINDOW",
-			"IDXGI",
-			"MINIMIZEBOX",
+			"dcompiler",
 			"dwmapi",
-			"DWMWCP_DONOTROUND",
-			"DWMWA",
-			"msaa",
-			"verdana",
-			"stbtt"
+			"dxgi",
+			"dxguid",
+			"DXUT",
+			"LPCSTR",
+			"STREQUAL",
+			"UIKIT",
+			"windres"
 		],
 
 		"explorer.fileNesting.enabled": true,
@@ -50,10 +41,8 @@
 		],
 		"cmake.defaultBuildType": "Release",
 		"cmake.buildTypes": ["Debug", "Release"],
-
 		"cmake.generator": "Ninja",
 		"cmake.preferredGenerators": ["Ninja", "MinGW Makefiles"],
-
 		"editor.tokenColorCustomizations": {
 			"textMateRules": [
 				{

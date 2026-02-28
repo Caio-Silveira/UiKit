@@ -1,29 +1,44 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
-
-project(UiKit CXX)
+project(UiKit LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+
+set(STATIC_BUILD ON)
+if(STATIC_BUILD)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+endif()
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+
+    set(BUILD_FOR_WINDOWS TRUE)
+
+    if(BUILD_FOR_WINDOWS)
+        set(CMAKE_SYSTEM_NAME Windows)
+        set(CMAKE_C_COMPILER /usr/bin/x86_64-w64-mingw32-gcc)
+        set(CMAKE_CXX_COMPILER /usr/bin/x86_64-w64-mingw32-g++)
+        set(CMAKE_RC_COMPILER /usr/bin/x86_64-w64-mingw32-windres)
+
+        set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+        set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+        set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+        set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+        include_directories(${CMAKE_FIND_ROOT_PATH}/include)
+        link_directories(${CMAKE_FIND_ROOT_PATH}/lib)
+    endif()
+endif()
 
 set(UIKIT_SOURCES
-    src/UI/ui.cpp
-    src/UI/ui_context.cpp
-    src/UI/ui_shaders.cpp 
-    src/UI/stb_impl.cpp
+    src/WND.cpp
 )
 
 set(UIKIT_HEADERS
-    include/UI/ui.h
-    include/UI/ui_context.h
-    include/UI/ui_core.h
-    include/UI/ui_draw.h
-    include/UI/ui_helpers.h
-    include/UI/ui_widgets.h
-    include/UI/ui_shaders.h
-    include/UI/stb_truetype.h
-    include/UI/ui_font.h
-    include/UI/verdana.h
+    include/DXUT.h
+    include/Types.h
+    include/WND.h
 )
 
 add_executable(UiKit WIN32
