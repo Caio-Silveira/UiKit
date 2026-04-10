@@ -5,7 +5,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     window->Mode(UiKit::WINDOWED);
     window->Size(1024,600);
-    window->Color(0, 122, 204);
+    window->Color(255,141,161);
     window->Title("UiKit");
     window->Icon(IDI_APPLICATION);
     window->Cursor(IDC_ARROW);
