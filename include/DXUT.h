@@ -3,5 +3,6 @@
 
 #include "Types.h"
 #include "WND.h"
+#include "Input.h"
 
 #endif

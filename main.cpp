@@ -2,7 +2,6 @@
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     UiKit::WND * window = new UiKit::WND();
-
     window->Mode(UiKit::WINDOWED);
     window->Size(1024,600);
     window->Color(255,141,161);
@@ -11,10 +10,14 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     window->Cursor(IDC_ARROW);
     window->Create();
 
+    UiKit::Input* input = new UiKit::Input();
     MSG msg;
     while(GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+
+        if(input->KeyPress(VK_ESCAPE))
+            window->Close();
     }
 
     delete window;

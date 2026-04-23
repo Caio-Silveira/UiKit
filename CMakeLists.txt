@@ -33,12 +33,14 @@ endif()
 
 set(UIKIT_SOURCES
     src/WND.cpp
+    src/Input.cpp
 )
 
 set(UIKIT_HEADERS
     include/DXUT.h
     include/Types.h
     include/WND.h
+    include/Input.h
 )
 
 add_executable(UiKit WIN32

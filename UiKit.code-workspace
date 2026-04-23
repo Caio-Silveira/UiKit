@@ -14,7 +14,15 @@
 			"LPCSTR",
 			"STREQUAL",
 			"UIKIT",
-			"windres"
+			"windres",
+			"HINSTANCE",
+			"WNDCLASSEXA",
+			"HREDRAW",
+			"lpfn",
+			"OWNDC",
+			"lpsz",
+			"vkcode",
+			"GWLP_WNDPROC"
 		],
 
 		"explorer.fileNesting.enabled": true,
@@ -180,7 +188,7 @@
 			"xlocnum": "cpp",
 			"xloctime": "cpp",
 			"xmemory": "cpp",
-			"xstring": "cpp"
+			"xstring": "cpp",
 		}
 	},
 	"extensions": {
