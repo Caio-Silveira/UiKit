@@ -5,6 +5,13 @@
 		}
 	],
 	"settings": {
+		"clangd.arguments": [
+		"--compile-commands-dir=build",
+		"--query-driver=/usr/bin/x86_64-w64-mingw32-*",
+		"--background-index",
+		"--completion-style=detailed",
+		"--clang-tidy"
+		],
 		"cSpell.words": [
 			"dcompiler",
 			"dwmapi",
@@ -22,7 +29,12 @@
 			"OWNDC",
 			"lpsz",
 			"vkcode",
-			"GWLP_WNDPROC"
+			"GWLP_WNDPROC",
+			"CXSCREEN",
+			"CYSCREEN",
+			"docstates",
+			"opensdf",
+			"opendb"
 		],
 
 		"explorer.fileNesting.enabled": true,
@@ -37,9 +49,6 @@
 			"Makefile": "*.mk, Makefile.*",
 			".clang-format": ".clang-tidy, compile_commands.json",
 		},
-		"C_Cpp.intelliSenseEngine": "default",
-		"C_Cpp.autocomplete": "default",
-		"C_Cpp.errorSquiggles": "enabled",
 
 		// CMake Tools Build Configs
 		"cmake.buildDirectory": "${workspaceFolder}/build",
@@ -193,13 +202,11 @@
 	},
 	"extensions": {
 		"recommendations": [
-			"ms-vscode.cpptools-themes",
-			"ms-vscode.cpptools-extension-pack",
-			"ms-vscode.cpptools",
 			"ms-vscode.cmake-tools",
 			"usernamehw.errorlens",
 			"aaron-bond.better-comments",
-			"streetsidesoftware.code-spell-checker"
+			"streetsidesoftware.code-spell-checker",
+			"llvm-vs-code-extensions.vscode-clangd"
 		]
-	}
+	},
 }

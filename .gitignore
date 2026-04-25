@@ -75,3 +75,6 @@ desktop.ini
 
 prompts/
 prompts/*
+
+# clangd
+.clangd
