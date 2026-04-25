@@ -5,55 +5,60 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace UiKit {
 
     enum WindowModes { FULLSCREEN, WINDOWED };
 
     class WND {
-        
-        private:
+        public:
+            using EventCallback = void(*)(WPARAM, LPARAM);
 
-        HWND id;
-        int width;
-        int height;
-        int x;
-        int y;
-        int cenX;
-        int cenY;
-        HICON icon;
-        HCURSOR cursor;
-        COLORREF color;
-        std::string title;
-        DWORD style;
-        int mode;
+        private:
+            HWND id;
+            int width;
+            int height;
+            int x;
+            int y;
+            int cenX;
+            int cenY;
+            HICON icon;
+            HCURSOR cursor;
+            COLORREF color;
+            std::string title;
+            DWORD style;
+            int mode;
+            static std::unordered_map<UINT, std::vector<EventCallback>> events;
 
         public:
+            WND();
+            HWND Id() const;
+            int Width() const;
+            int Height() const;
+            int Mode() const;
+            int CenterX() const;
+            int CenterY() const;
+            std::string Title() const;
+            COLORREF Color() const;
 
-        WND();
-        HWND Id() const;
-        int Width() const;
-        int Height() const;
-        int Mode() const;
-        int CenterX() const;
-        int CenterY() const;
-        std::string Title() const;
-        COLORREF Color() const;
+            void Icon(const uint i);
+            void Icon(const LPCSTR i);
+            void Cursor(const LPCSTR c);
+            void Title(const std::string t);
+            void Size(int w, int h);
+            void Mode(int m);
+            void Color(int r, int g, int b);
 
-        void Icon(const uint i);
-        void Icon(const LPCSTR i);
-        void Cursor(const LPCSTR c);
-        void Title(const std::string t);
-        void Size(int w, int h);
-        void Mode(int m);
-        void Color(int r, int g, int b);
-
-        void HideCursor(bool h);
-        void Print(std::string t, int x, int y, COLORREF c);
-        void Close();
-        bool Create();
-
-        static LRESULT CALLBACK WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+            void HideCursor(bool h);
+            void Print(std::string t, int x, int y, COLORREF c);
+            void Close();
+            bool Create();
+            void Clear();
+            
+            static void On(UINT msg, EventCallback fn);
+            static LRESULT CALLBACK WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     };
 
     inline HWND WND::Id() const {

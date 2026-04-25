@@ -48,6 +48,19 @@ namespace UiKit {
 
         ReleaseDC(id, xdc);
     }
+    
+    void WND::Clear() {
+        HDC hdc = GetDC(id);
+
+        RECT rect;
+        GetClientRect(id, &rect);
+
+        HBRUSH brush = CreateSolidBrush(color);
+        FillRect(hdc, &rect, brush);
+
+        DeleteObject(brush);
+        ReleaseDC(id, hdc);
+    }
 
     bool WND::Create() {
         HINSTANCE hInstance = GetModuleHandle(NULL);
@@ -112,7 +125,24 @@ namespace UiKit {
         return true;
     }
 
+
+    std::unordered_map<UINT, std::vector<WND::EventCallback>> WND::events;
+
+    void WND::On(UINT msg, EventCallback fn) {
+        events[msg].push_back(fn);
+    }
+
     LRESULT CALLBACK WND::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+        auto it = events.find(msg);
+
+        if(it != events.end()) {
+            for(auto fn : it->second) {
+                if(fn) {
+                    fn(wParam, lParam);
+                }
+            }
+        }
+
         switch(msg) {
             case WM_DESTROY:
                 PostQuitMessage(0);
