@@ -4,22 +4,24 @@
 #include <windows.h>
 
 namespace UiKit {
-    class Input
-    {
+    class Input {
         private:
-            static bool keys[256];  //state keyboard/mouse
-            static bool ctrl[256];  //control free
+            static bool keys[256];
+            static bool ctrl[256];
+            static char character;
+
+            static void OnKeyDown(WPARAM wParam, LPARAM lParam);
+            static void OnKeyUp(WPARAM wParam, LPARAM lParam);
+            static void OnChar(WPARAM wParam, LPARAM lParam);
 
         public:
-            
-            Input();    //construct
-            ~Input();   //destruct
+            Input();
+            ~Input();
 
             bool KeyDown(int vkcode);
             bool KeyUp(int vkcode);
             bool KeyPress(int vkcode);
-
-        static LRESULT CALLBACK InputProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+            char ReadChar();
     };
 
     inline bool Input::KeyDown(int vkcode){

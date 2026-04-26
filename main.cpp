@@ -15,7 +15,7 @@ void OnLostFocus(WPARAM, LPARAM) {
         g_window->Print("LostFocus", 20, 20, RGB(255,0,0));
     }
 }
-
+ 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) {
     
     UiKit::WND* window = new UiKit::WND();
