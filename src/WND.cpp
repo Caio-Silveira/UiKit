@@ -1,4 +1,5 @@
 #include "../include/WND.h"
+#include <algorithm>
 
 namespace UiKit {
 
@@ -48,7 +49,7 @@ namespace UiKit {
 
         ReleaseDC(id, xdc);
     }
-    
+
     void WND::Clear() {
         HDC hdc = GetDC(id);
 
@@ -132,6 +133,22 @@ namespace UiKit {
         events[msg].push_back(fn);
     }
 
+    void WND::Off(UINT msg, EventCallback fn) {
+        auto it = events.find(msg);
+
+        if(it == events.end())
+            return;
+
+        auto& callbacks = it->second;
+
+        callbacks.erase(
+            std::remove(callbacks.begin(), callbacks.end(), fn),
+            callbacks.end()
+        );
+        if(callbacks.empty())
+            events.erase(it);
+    }
+    
     LRESULT CALLBACK WND::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         auto it = events.find(msg);
 

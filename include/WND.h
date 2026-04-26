@@ -58,6 +58,7 @@ namespace UiKit {
             void Clear();
             
             static void On(UINT msg, EventCallback fn);
+            static void Off(UINT msg, EventCallback fn);
             static LRESULT CALLBACK WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     };
 
