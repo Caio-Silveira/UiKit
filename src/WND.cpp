@@ -1,5 +1,4 @@
 #include "../include/WND.h"
-#include <algorithm>
 
 namespace UiKit {
 
@@ -15,8 +14,8 @@ namespace UiKit {
         mode = FULLSCREEN;
         x = 0;
         y = 0;
-        cenX = width/2;
-        cenY = height/2;
+        cenX = width / 2;
+        cenY = height / 2;
     }
 
     void WND::Mode(int m) {
@@ -24,19 +23,19 @@ namespace UiKit {
 
         if(m == WINDOWED)
             style = WS_OVERLAPPED | WS_SYSMENU | WS_VISIBLE;
-        else 
+        else
             style = WS_EX_TOPMOST | WS_POPUP | WS_VISIBLE;
     }
 
     void WND::Size(int w, int h) {
-       width = w;
-       height = h;
-       
-       cenX = width / 2;
-       cenY = height / 2;
+        width = w;
+        height = h;
 
-       x = (GetSystemMetrics(SM_CXSCREEN) / 2) - cenX;
-       y = (GetSystemMetrics(SM_CYSCREEN) / 2) - cenY;
+        cenX = width / 2;
+        cenY = height / 2;
+
+        x = (GetSystemMetrics(SM_CXSCREEN) / 2) - cenX;
+        y = (GetSystemMetrics(SM_CYSCREEN) / 2) - cenY;
     }
 
     void WND::Print(std::string t, int x, int y, COLORREF c) {
@@ -118,6 +117,8 @@ namespace UiKit {
         if(!id)
             return false;
 
+        SetWindowLongPtr(id, GWLP_USERDATA, (LONG_PTR)this);
+
         int opacity = 255;
         SetLayeredWindowAttributes(id, 0, opacity, LWA_ALPHA);
         ShowWindow(id, SW_SHOW);
@@ -126,36 +127,25 @@ namespace UiKit {
         return true;
     }
 
-
-    std::unordered_map<UINT, std::vector<WND::EventCallback>> WND::events;
-
     void WND::On(UINT msg, EventCallback fn) {
         events[msg].push_back(fn);
     }
 
-    void WND::Off(UINT msg, EventCallback fn) {
-        auto it = events.find(msg);
-
-        if(it == events.end())
-            return;
-
-        auto& callbacks = it->second;
-
-        callbacks.erase(
-            std::remove(callbacks.begin(), callbacks.end(), fn),
-            callbacks.end()
-        );
-        if(callbacks.empty())
-            events.erase(it);
+    void WND::Off(UINT msg) {
+        events.erase(msg);
     }
-    
-    LRESULT CALLBACK WND::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-        auto it = events.find(msg);
 
-        if(it != events.end()) {
-            for(auto fn : it->second) {
-                if(fn) {
-                    fn(wParam, lParam);
+    LRESULT CALLBACK WND::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+        WND* window = (WND*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+        if(window) {
+            auto it = window->events.find(msg);
+
+            if(it != window->events.end()) {
+                for(auto& fn : it->second) {
+                    if(fn) {
+                        fn(wParam, lParam);
+                    }
                 }
             }
         }

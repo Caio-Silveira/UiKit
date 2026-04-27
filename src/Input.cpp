@@ -1,5 +1,4 @@
 #include "../include/Input.h"
-#include "../include/WND.h"
 
 namespace UiKit {
     
@@ -7,16 +6,20 @@ namespace UiKit {
     bool Input::ctrl[256] = { 0 };
     char Input::character = '\0';
 
-    Input::Input() {
-        WND::On(WM_KEYDOWN, Input::OnKeyDown);
-        WND::On(WM_KEYUP, Input::OnKeyUp);
-        WND::On(WM_CHAR, Input::OnChar);
+    Input::Input(WND& wnd) {
+        window = &wnd;
+
+        window->On(WM_KEYDOWN, Input::OnKeyDown);
+        window->On(WM_KEYUP, Input::OnKeyUp);
+        window->On(WM_CHAR, Input::OnChar);
     }
 
     Input::~Input() {
-        WND::Off(WM_KEYDOWN, Input::OnKeyDown);
-        WND::Off(WM_KEYUP, Input::OnKeyUp);
-        WND::Off(WM_CHAR, Input::OnChar);
+        if(window) {
+            window->Off(WM_KEYDOWN);
+            window->Off(WM_KEYUP);
+            window->Off(WM_CHAR);
+        }
     }
 
     bool Input::KeyPress(int vkcode) {
@@ -29,7 +32,7 @@ namespace UiKit {
         else if(KeyUp(vkcode)) {
             ctrl[vkcode] = true;
         }
-            
+
         return false;
     }
 
@@ -45,7 +48,7 @@ namespace UiKit {
         character = static_cast<char>(wParam);
     }
 
-    char Input::ReadChar() {
+    char Input::Read() {
         char c = character;
         character = '\0';
         return c;

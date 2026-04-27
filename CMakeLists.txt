@@ -34,6 +34,7 @@ endif()
 set(UIKIT_SOURCES
     src/WND.cpp
     src/Input.cpp
+    src/UI/tab1.cpp
 )
 
 set(UIKIT_HEADERS
@@ -41,6 +42,7 @@ set(UIKIT_HEADERS
     include/Types.h
     include/WND.h
     include/Input.h
+    include/UI/tab1.h
 )
 
 add_executable(UiKit WIN32

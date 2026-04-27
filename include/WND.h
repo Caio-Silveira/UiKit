@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 namespace UiKit {
 
@@ -14,7 +15,7 @@ namespace UiKit {
 
     class WND {
         public:
-            using EventCallback = void(*)(WPARAM, LPARAM);
+            using EventCallback = std::function<void(WPARAM, LPARAM)>;
 
         private:
             HWND id;
@@ -30,10 +31,11 @@ namespace UiKit {
             std::string title;
             DWORD style;
             int mode;
-            static std::unordered_map<UINT, std::vector<EventCallback>> events;
+            std::unordered_map<UINT, std::vector<EventCallback>> events;
 
         public:
             WND();
+
             HWND Id() const;
             int Width() const;
             int Height() const;
@@ -56,9 +58,10 @@ namespace UiKit {
             void Close();
             bool Create();
             void Clear();
-            
-            static void On(UINT msg, EventCallback fn);
-            static void Off(UINT msg, EventCallback fn);
+
+            void On(UINT msg, EventCallback fn);
+            void Off(UINT msg);
+
             static LRESULT CALLBACK WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
     };
 
@@ -69,7 +72,7 @@ namespace UiKit {
     inline int WND::Width() const {
         return width;
     }
-    
+
     inline int WND::Height() const {
         return height;
     }
@@ -90,7 +93,7 @@ namespace UiKit {
         return title;
     }
 
-    inline COLORREF  WND::Color() const {
+    inline COLORREF WND::Color() const {
         return color;
     }
 
@@ -110,7 +113,7 @@ namespace UiKit {
         color = RGB(r, g, b);
     }
 
-    inline void WND::Cursor(const LPCSTR c){
+    inline void WND::Cursor(const LPCSTR c) {
         cursor = LoadCursorA(NULL, c);
     }
 
@@ -122,4 +125,5 @@ namespace UiKit {
         PostMessage(id, WM_DESTROY, 0, 0);
     }
 }
+
 #endif

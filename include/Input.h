@@ -2,10 +2,13 @@
 #define DXUT_INPUT_H
 
 #include <windows.h>
+#include "WND.h"
 
 namespace UiKit {
     class Input {
         private:
+            WND* window;
+
             static bool keys[256];
             static bool ctrl[256];
             static char character;
@@ -15,21 +18,22 @@ namespace UiKit {
             static void OnChar(WPARAM wParam, LPARAM lParam);
 
         public:
-            Input();
+            Input(WND& wnd);
             ~Input();
 
             bool KeyDown(int vkcode);
             bool KeyUp(int vkcode);
             bool KeyPress(int vkcode);
-            char ReadChar();
+            char Read();
     };
 
-    inline bool Input::KeyDown(int vkcode){
+    inline bool Input::KeyDown(int vkcode) {
         return keys[vkcode];
     }
 
-    inline bool Input::KeyUp(int vkcode){
-        return !(keys[vkcode]);
+    inline bool Input::KeyUp(int vkcode) {
+        return !keys[vkcode];
     }
 }
+
 #endif
