@@ -11,7 +11,10 @@ namespace UiKit {
 
             static bool keys[256];
             static bool ctrl[256];
-            static char character;
+
+            static const uint textlimit = 80;
+            static uint textindex;
+            static char text[textlimit];
 
             static void OnKeyDown(WPARAM wParam, LPARAM lParam);
             static void OnKeyUp(WPARAM wParam, LPARAM lParam);
@@ -24,7 +27,9 @@ namespace UiKit {
             bool KeyDown(int vkcode);
             bool KeyUp(int vkcode);
             bool KeyPress(int vkcode);
-            char Read();
+
+            void Read();
+            static char* Text();
     };
 
     inline bool Input::KeyDown(int vkcode) {
@@ -33,6 +38,10 @@ namespace UiKit {
 
     inline bool Input::KeyUp(int vkcode) {
         return !keys[vkcode];
+    }
+
+    inline char* Input::Text(){
+        return text;
     }
 }
 

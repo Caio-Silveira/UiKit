@@ -1,4 +1,5 @@
 #include "../../include/UI/tab1.h"
+#include <windows.h>
 
 Tab1::Tab1() : input(*this) {
     Mode(UiKit::WINDOWED);
@@ -41,6 +42,11 @@ int Tab1::Run() {
 
         if(input.KeyPress(VK_ESCAPE))
             Close();
+
+        if(input.KeyPress(VK_INSERT))
+            input.Read();
+
+        Print(input.Text(), 390, 300, RGB(255,255,255));
     }
 
     return 0;

@@ -1,10 +1,12 @@
 #include "../include/Input.h"
+#include <windows.h>
 
 namespace UiKit {
     
     bool Input::keys[256] = { 0 };
     bool Input::ctrl[256] = { 0 };
-    char Input::character = '\0';
+    uint Input::textindex = 0;
+    char Input::text[textlimit] = { 0 };
 
     Input::Input(WND& wnd) {
         window = &wnd;
@@ -45,12 +47,30 @@ namespace UiKit {
     }
 
     void Input::OnChar(WPARAM wParam, LPARAM) {
-        character = static_cast<char>(wParam);
+        switch (wParam) {
+            //backspace
+            case 0x08:
+                if(textindex > 0)   {
+                    textindex--;
+                    text[textindex] = '\0';
+                }
+                break;
+            //tab and enter
+            case 0x09:
+            case 0x0D:
+                break;
+            default:
+               if(textindex < textlimit)
+                  text[textindex++] = char(wParam);
+                break;
+        }
+        //nao precisa com directx
+        InvalidateRect(GetActiveWindow(), NULL, TRUE);
+        return;
     }
 
-    char Input::Read() {
-        char c = character;
-        character = '\0';
-        return c;
+    void Input::Read() {
+        textindex = 0;
+        ZeroMemory(text, textlimit);
     }
 }
