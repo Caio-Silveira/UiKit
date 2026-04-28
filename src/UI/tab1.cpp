@@ -1,5 +1,6 @@
 #include "../../include/UI/tab1.h"
 #include <windows.h>
+#include <string>
 
 Tab1::Tab1() : input(*this) {
     Mode(UiKit::WINDOWED);
@@ -40,13 +41,32 @@ int Tab1::Run() {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
 
-        if(input.KeyPress(VK_ESCAPE))
+        if(input.Press(VK_ESCAPE))
             Close();
 
-        if(input.KeyPress(VK_INSERT))
+        if(input.Press(VK_INSERT))
             input.Read();
 
+        Clear();
+
         Print(input.Text(), 390, 300, RGB(255,255,255));
+
+        std::string mousePos = "Mouse X: " + std::to_string(input.MouseX()) +
+                               " Y: " + std::to_string(input.MouseY());
+
+        Print(mousePos, 20, 60, RGB(255,255,255));
+
+        std::string wheel = "Wheel: " + std::to_string(input.MouseWheel());
+        Print(wheel, 20, 90, RGB(255,255,255));
+
+        if(input.Down(VK_LBUTTON))
+            Print("Left Button", 20, 120, RGB(255,255,255));
+
+        if(input.Down(VK_RBUTTON))
+            Print("Right Button", 20, 150, RGB(255,255,255));
+
+        if(input.Down(VK_MBUTTON))
+            Print("Middle Button", 20, 180, RGB(255,255,255));
     }
 
     return 0;
